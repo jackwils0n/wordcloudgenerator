@@ -31,8 +31,6 @@
 <body>
 <?php
 
-//TODO create block filter for words (like 'it', 'is', 'a', etc)
-//  also for words that have less than a threshold?
 // connect words like, thank you
 //TODO colours
 //TODO shapes maybe?
@@ -64,17 +62,25 @@ function display_cloud($words){
     }
 }
 
-function get_word_count($wordlist){
+function sortby_count($wordlist){
 	usort($wordlist, function($a, $b){
 		return $a['count'] - $b['count'];
     });
-    echo "<pre>"; print_r($wordlist); echo "</pre>";
+	foreach($wordlist AS $attr) {
+		echo $attr['word'] . " - " . $attr['count']. "<br/>";
+	}
 }
 
-$blacklist = array('bacon');
+$blacklist = array('');
 
-function remove_words($blacklist, $cloud){
-    echo "<pre>";print_r($cloud);echo "</pre>";
+function remove_words($blacklist, $cloud, $threshold=0){
+    if($threshold > 0){
+        foreach($cloud AS $key => $val){
+            if($cloud[$key]['count'] < $threshold){
+	            unset($cloud[$key]);
+            }
+        }
+    }
     foreach($blacklist AS $blockedword){
         if(array_key_exists($blockedword, $cloud)){
             unset($cloud[$blockedword]);
@@ -102,8 +108,8 @@ foreach($words AS $array) {
         isset($cloud[$v]['count']) ? $cloud[$v]['count']++: $cloud[$v]['count'] = 1;;
     }
 }
-$cloud = remove_words($blacklist, $cloud);
-get_word_count($cloud);
+//$cloud = remove_words($blacklist, $cloud);
+//sortby_count($cloud);
 display_cloud($cloud);
 
 mysqli_close($con);
